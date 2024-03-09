@@ -1,0 +1,22 @@
+[package]
+name = "sailce_data_model"
+version.workspace = true
+description = "The core data model of Willow."
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+#TODO? categories.workspace = true
+#TODO? keywords.workspace = true
+
+[features]
+alloc = []
+#TODO? std = ["alloc"]
+
+[dependencies]
+# whatever.workspace = true
+
+[lints]
+workspace = true
