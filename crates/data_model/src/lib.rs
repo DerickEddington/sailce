@@ -73,6 +73,10 @@ pub trait Params
 }
 
 
+// TODO: Reconsider if this should be some kind of seekable interface, instead of an interator, to
+// allow uses more like a traditional file that want to seek without getting contents from the
+// start.
+//
 /// An arbitrary sequence of bytes.  I.e. a single logical byte-string.  At most [`u64::MAX`]
 /// bytes.
 ///
