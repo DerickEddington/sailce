@@ -25,4 +25,7 @@ pub use range::{
 };
 
 pub mod area;
-pub use area::Area;
+pub use area::{
+    Area,
+    AreaOfInterest,
+};

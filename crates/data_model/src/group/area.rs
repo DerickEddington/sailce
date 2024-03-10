@@ -13,6 +13,10 @@ use {
 };
 
 
+mod of_interest;
+pub use of_interest::AreaOfInterest;
+
+
 /// A grouping of Entries.
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd, Debug)]
 #[allow(clippy::exhaustive_structs)]
@@ -60,7 +64,9 @@ where S: Eq
 
 
 impl<S, P> Area<S, P>
-where P: Path
+where
+    S: Eq,
+    P: Path,
 {
     /// Creates an empty Area.
     #[must_use]
@@ -141,7 +147,7 @@ where P: Path
         other: impl Borrow<Self>,
     ) -> Self
     where
-        S: Eq + Clone,
+        S: Clone,
         P: Default + Clone,
     {
         let other = other.borrow();
