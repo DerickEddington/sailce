@@ -23,3 +23,6 @@ pub use range::{
     Range,
     ThreeDimRange,
 };
+
+pub mod area;
+pub use area::Area;

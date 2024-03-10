@@ -112,6 +112,19 @@ where T: Ord
             }
     }
 
+    pub(crate) fn includes_range(
+        &self,
+        other: &Self,
+    ) -> bool
+    {
+        self.includes(&other.start)
+            && (match (&self.end, &other.end) {
+                (_, End::Closed(other_end)) => self.includes(other_end),
+                (End::Closed(_), End::Open) => false,
+                (End::Open, End::Open) => true,
+            })
+    }
+
     /// A range is _empty_ if it includes no values.
     #[must_use]
     #[inline]

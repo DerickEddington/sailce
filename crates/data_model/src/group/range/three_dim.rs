@@ -20,11 +20,11 @@ use {
 #[allow(clippy::exhaustive_structs)]
 pub struct ThreeDimRange<SubspaceId, Path>
 {
-    /// The [`Range`] of [`Subspace`](crate::Params::SubspaceId)s.
+    /// The range of [`Subspace`](crate::Params::SubspaceId)s.
     pub subspaces: Range<SubspaceId>,
-    /// The [`Range`] of [`Path`](crate::Path)s.
+    /// The range of [`Path`](crate::Path)s.
     pub paths:     Range<Path>,
-    /// The [`Range`] of [`Timestamp`]s.
+    /// The range of [`Timestamp`]s.
     pub times:     Range<Timestamp>,
 }
 
