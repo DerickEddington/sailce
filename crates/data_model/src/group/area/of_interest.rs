@@ -42,8 +42,9 @@ where
     /// - `self.area` includes `entry`,
     /// - `self.max_count` is zero, or `entry` is among the `self.max_count` newest `Entry`s of
     ///   `store`, and
-    /// - `self.max_size` is zero, or the sum of the `payload_lengths` of `entry` and all newer
-    ///   `Entry`s in `store` is less than or equal to `self.max_size`.
+    /// - `self.max_size` is zero, or the sum of the `payload_lengths` of `entry` and all
+    ///   [newer](Entry::is_newer_than) `Entry`s in `store` is less than or equal to
+    ///   `self.max_size`.
     #[inline]
     pub fn includes<N, D, Pe>(
         &self,
@@ -51,9 +52,12 @@ where
         store: &Store<N, impl StoreExt>,
     ) -> bool
     where
+        N: Eq,
         Pe: Path,
     {
         let entry = entry.borrow();
-        self.area.includes::<Entry<_, _, _, _>>(entry) && todo!()
+        (entry.namespace_id == store.namespace_id)
+            && self.area.includes::<Entry<_, _, _, _>>(entry)
+            && (self.max_size == 0 || todo!())
     }
 }

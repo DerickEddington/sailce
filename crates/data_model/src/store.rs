@@ -24,10 +24,12 @@ use crate::{
 /// This type enforces requirements that use of a Store must uphold, but, otherwise, it delegates
 /// to a [`StoreExt`] type that provides the primary implementation.
 #[derive(Debug)]
+#[allow(clippy::partial_pub_fields)]
 pub struct Store<NamespaceId, Ext>
 {
-    namespace_id: NamespaceId,
-    ext:          Ext,
+    /// Which Namespace this `Store` is for.
+    pub namespace_id: NamespaceId,
+    ext:              Ext,
 }
 
 impl<Params, Ext> Store<Params::NamespaceId, Ext>
