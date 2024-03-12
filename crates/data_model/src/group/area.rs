@@ -13,7 +13,7 @@ use {
 };
 
 
-mod of_interest;
+pub mod of_interest;
 pub use of_interest::AreaOfInterest;
 
 
