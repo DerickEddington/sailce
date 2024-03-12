@@ -9,6 +9,7 @@ use {
     super::Area,
     crate::{
         Entry,
+        ParamsEntry,
         Path,
         Store,
         StoreExt,
@@ -42,22 +43,29 @@ where
     /// - `self.area` includes `entry`,
     /// - `self.max_count` is zero, or `entry` is among the `self.max_count` newest `Entry`s of
     ///   `store`, and
-    /// - `self.max_size` is zero, or the sum of the `payload_lengths` of `entry` and all
+    /// - `self.max_size` is zero, or the sum of the `payload_length`s of `entry` and all
     ///   [newer](Entry::is_newer_than) `Entry`s in `store` is less than or equal to
     ///   `self.max_size`.
     #[inline]
-    pub fn includes<N, D, Pe>(
+    pub fn includes<Params, Pe>(
         &self,
-        entry: impl Borrow<Entry<N, S, Pe, D>>,
-        store: &Store<N, impl StoreExt>,
+        entry: impl Borrow<ParamsEntry<Params, Pe>>,
+        store: &Store<Params::NamespaceId, impl StoreExt<Params = Params>>,
     ) -> bool
     where
-        N: Eq,
+        Params: crate::Params<SubspaceId = S> + ?Sized,
         Pe: Path,
     {
-        let entry = entry.borrow();
-        (entry.namespace_id == store.namespace_id)
-            && self.area.includes::<Entry<_, _, _, _>>(entry)
-            && (self.max_size == 0 || todo!())
+        //TODO: let entry = entry.borrow(); // Causes "no field on type" bug in rust-analyzer.
+        let ent = entry.borrow(); // TODO: remove
+
+        (entry.borrow().namespace_id == store.namespace_id)
+            && self.area.includes::<Entry<_, _, _, _>>(ent)
+            && (self.max_count == 0 || store.newest_entries_include(self.max_count, ent))
+            && (self.max_size == 0
+                || store
+                    .payloads_total_size_of_entry_to_newest(ent)
+                    .is_some_and(|sum| sum <= self.max_size.into()))
+        // Note: If summing overflowed, the sum is greater than `u64::MAX`.
     }
 }

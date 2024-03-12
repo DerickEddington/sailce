@@ -1,9 +1,13 @@
 //! Aspects of Stores.
 
-use crate::{
-    ParamsAuthorisedEntry,
-    Path,
-    Payload,
+use {
+    crate::{
+        ParamsAuthorisedEntry,
+        ParamsEntry,
+        Path,
+        Payload,
+    },
+    core::borrow::Borrow,
 };
 
 
@@ -149,6 +153,31 @@ where
     pub fn iter(&self) -> Ext::Iter
     {
         self.ext.iter()
+    }
+
+    #[allow(clippy::todo, unused_variables)] // TODO: remove
+    pub(crate) fn newest_entries_include<P>(
+        &self,
+        max_count: u64,
+        entry: impl Borrow<ParamsEntry<Params, P>>,
+    ) -> bool
+    where
+        P: Path,
+    {
+        todo!()
+    }
+
+    /// Returns the sum of the `payload_length`s of `entry` and all [newer](Entry::is_newer_than)
+    /// `Entry`s in `self`, or `None` if summing overflowed.
+    #[allow(clippy::todo, unused_variables)] // TODO: remove
+    pub(crate) fn payloads_total_size_of_entry_to_newest<P>(
+        &self,
+        entry: impl Borrow<ParamsEntry<Params, P>>,
+    ) -> Option<u128>
+    where
+        P: Path,
+    {
+        todo!()
     }
 }
 
