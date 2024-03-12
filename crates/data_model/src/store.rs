@@ -2,7 +2,7 @@
 
 use {
     crate::{
-        ParamsAuthorisedEntry,
+        AuthorisedEntry,
         ParamsEntry,
         Path,
         Payload,
@@ -71,7 +71,7 @@ where
     /// If creating the new `Self` fails for any reason.
     #[inline]
     pub fn singleton(
-        auth_entry: &ParamsAuthorisedEntry<Params, impl Path>,
+        auth_entry: &AuthorisedEntry<Params, impl Path>,
         payload: Option<impl Payload>,
         args: Ext::NewArgs,
     ) -> Result<Self, SingletonError<Ext>>
@@ -125,7 +125,7 @@ where
     #[inline]
     pub fn put(
         &mut self,
-        auth_entry: &ParamsAuthorisedEntry<Params, impl Path>,
+        auth_entry: &AuthorisedEntry<Params, impl Path>,
         payload: Option<impl Payload>,
     ) -> Result<(), PutError<Ext>>
     {
@@ -261,7 +261,7 @@ pub trait StoreExt: Sized
     /// Error(s) possibly returned by [`join`](Self::join).
     type JoinError;
     /// Returned by [`iter`](Self::iter).
-    type Iter: Iterator<Item = ParamsAuthorisedEntry<Self::Params, Self::IterPath>>;
+    type Iter: Iterator<Item = AuthorisedEntry<Self::Params, Self::IterPath>>;
     /// Part of what is yielded by [`Self::Iter`].
     type IterPath: Path;
 
@@ -281,7 +281,7 @@ pub trait StoreExt: Sized
     /// See [`Store::put`].
     fn put(
         &mut self,
-        auth_entry: &ParamsAuthorisedEntry<Self::Params, impl Path>,
+        auth_entry: &AuthorisedEntry<Self::Params, impl Path>,
         payload: Option<impl Payload>,
     ) -> Result<(), Self::PutError>;
 
