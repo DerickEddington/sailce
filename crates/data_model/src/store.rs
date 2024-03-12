@@ -82,23 +82,23 @@ where
         Ok(new)
     }
 
-    /// The [`NamespaceId`](Params::NamespaceId) that `self` is for.
+    /// The [`NamespaceId`](crate::Params::NamespaceId) that `self` is for.
     #[inline]
     pub fn namespace_id(&self) -> &Params::NamespaceId
     {
         &self.namespace_id
     }
 
-    /// Retrieve the [`Payload`] of an [`Entry`].
+    /// Retrieve the [`Payload`] of an [`Entry`](crate::Entry).
     ///
     /// Returns an [`Iterator`] of chunks that represents a single logical byte-string.  This
     /// allows the `impl`ementor flexibility in the representation (e.g. to retrieve chunks lazily
     /// and not hold them all in-memory at once).  The sizes of and boundaries between chunks are
     /// arbitrary and might be inconsistent across calls for the same `Entry`.
     ///
-    /// Returns `None` if there is no such [`Entry`] stored in this `Store`'s Namespace, including
-    /// when an old [`Entry`] has been overwritten even if overwritten [`Entry`]s are still
-    /// persisted somehow.
+    /// Returns `None` if there is no such `Entry` stored in this `Store`'s Namespace, including
+    /// when an old `Entry` has been overwritten even if overwritten `Entry`s are still persisted
+    /// somehow.
     ///
     /// # Errors
     /// If retrieval fails for any reason.

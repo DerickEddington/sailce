@@ -8,7 +8,7 @@ mod auth;
 pub use auth::*;
 
 
-/// The metadata for storing a [`Payload`].
+/// The metadata for storing a [`Payload`](crate::Payload).
 ///
 /// The [`Ord`]ering of values of this type is based on the order of its fields, so that `Entry`s
 /// are first ordered by Namespace, then by Subspace, then by `Path`, and then, for the remaining

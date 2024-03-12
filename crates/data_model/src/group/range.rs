@@ -32,8 +32,8 @@ pub enum End<T>
 }
 
 
-/// A _range_ is a simple one-dimensional way of grouping [`Entry`]s, and is either a _closed
-/// range_ or an _open range_.
+/// A _range_ is a simple one-dimensional way of grouping [`Entry`](crate::Entry)s, and is either
+/// a _closed range_ or an _open range_.
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd, Debug)]
 #[allow(clippy::exhaustive_structs)]
 pub struct Range<T>

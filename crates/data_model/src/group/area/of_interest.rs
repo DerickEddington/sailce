@@ -3,7 +3,8 @@
 //! data.
 //!
 //! We serve these use cases by combining an [`Area`] with limits to restrict the contents to the
-//! `Entry`s with the greatest [`Timestamp`]s and with a total of [`Payload`] sizes.
+//! `Entry`s with the greatest [`Timestamp`](crate::Timestamp)s and with a total of
+//! [`Payload`](crate::Payload) sizes.
 
 use {
     super::Area,

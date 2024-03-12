@@ -1,5 +1,5 @@
-//! `Area`s are an alternative to [`ThreeDimRange`](crate::ThreeDimRange)s that can be used even
-//! when encrypting [`Path`](crate::Path)s and [`SubspaceId`](crate::Params::SubspaceId)s.
+//! `Area`s are an alternative to [`ThreeDimRange`](crate::group::ThreeDimRange)s that can be used
+//! even when encrypting [`Path`]s and [`SubspaceId`](crate::Params::SubspaceId)s.
 
 use {
     crate::{

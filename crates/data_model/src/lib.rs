@@ -17,6 +17,9 @@ use core::{
 mod entry;
 pub use entry::*;
 
+// The items in this are not re-exported, because the Grouping aspects are defined by the Willow
+// Specification as separate from the Core Data Model.  This crate provides them, because they're
+// closely related.
 pub mod group;
 
 pub mod path;
