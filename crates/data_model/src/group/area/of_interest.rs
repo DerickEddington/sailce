@@ -3,7 +3,7 @@
 //! data.
 //!
 //! We serve these use cases by combining an [`Area`] with limits to restrict the contents to the
-//! `Entry`s with the greatest [`Timestamp`]s.
+//! `Entry`s with the greatest [`Timestamp`]s and with a total of [`Payload`] sizes.
 
 use {
     super::Area,
@@ -26,13 +26,14 @@ use {
 #[allow(clippy::exhaustive_structs)]
 pub struct AreaOfInterest<SubspaceId, Path>
 {
-    /// To be included in this `AreaOfInterest`, an `Entry` must be included in the area.
+    /// To be included in this `AreaOfInterest`, an `Entry` must be included in this `Area`.
     pub area:      Area<SubspaceId, Path>,
     /// To be included in this `AreaOfInterest`, an `Entry`'s `timestamp` must be among the
-    /// `max_count` greatest `Timestamp`s, unless `max_count` is `Unlimited`.
+    /// `max_count` greatest `Timestamp`s in a [`Store`], unless `max_count` is
+    /// [`Unlimited`](Max::Unlimited).
     pub max_count: Max,
     /// The total `payload_length`s of all included `Entry`s is at most `max_size`, unless
-    /// `max_size` is `Unlimited`.
+    /// `max_size` is [`Unlimited`](Max::Unlimited).
     pub max_size:  Max,
 }
 

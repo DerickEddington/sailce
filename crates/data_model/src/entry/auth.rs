@@ -52,7 +52,7 @@ where P: Path
         &self.entry
     }
 
-    /// The [`AuthorisationToken`](crate::Params::AuthorisationToken) that authorises the Entry.
+    /// The [`AuthorisationToken`](crate::Params::AuthorisationToken) that authorises the `Entry`.
     #[inline]
     pub fn auth_token(&self) -> &A
     {

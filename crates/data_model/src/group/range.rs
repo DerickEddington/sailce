@@ -1,5 +1,5 @@
-//! Ranges are ways of grouping Entries.  They can express groupings such as "last week's
-//! Entries".
+//! `Range`s are ways of grouping `Entry`s.  They can express groupings such as "last week's
+//! entries".
 
 use {
     crate::Timestamp,
@@ -32,16 +32,17 @@ pub enum End<T>
 }
 
 
-/// A _range_ is a simple one-dimensional way of grouping Entries, and is either a _closed range_
-/// or an _open range_.
+/// A _range_ is a simple one-dimensional way of grouping [`Entry`]s, and is either a _closed
+/// range_ or an _open range_.
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd, Debug)]
 #[allow(clippy::exhaustive_structs)]
 pub struct Range<T>
 {
-    /// A value must be greater than or equal to this to be included in the range.
+    /// A value must be greater than or equal to this to be included in this `Range`.
     pub start: T,
-    /// If [`Open`](End::Open), the range is an open range.  Otherwise, a value must be strictly
-    /// less than this to be included in the range.
+    /// When [`Open`](End::Open), this `Range` is an open range.  Otherwise, when
+    /// [`Closed`](End::Closed), a value must be strictly less than this to be included in
+    /// this `Range`.
     pub end:   End<T>,
 }
 
@@ -86,7 +87,7 @@ impl From<core::ops::RangeFrom<u64>> for Range<Timestamp>
 impl<T> Range<T>
 where T: Ord
 {
-    /// Creates an empty range.
+    /// Creates an empty `Range`.
     #[must_use]
     #[inline]
     pub fn empty() -> Self
@@ -125,7 +126,7 @@ where T: Ord
             })
     }
 
-    /// A range is _empty_ if it includes no values.
+    /// A `Range` is _empty_ if it includes no values.
     #[must_use]
     #[inline]
     pub fn is_empty(&self) -> bool
@@ -164,7 +165,7 @@ where T: Ord
 }
 
 
-/// This is the range that includes the entirety of **all** the values of type `T`.
+/// This is the `Range` that includes the entirety of **all** the values of type `T`.
 ///
 /// (This is analogous to [`ThreeDimRange::default`], but was not part of the Willow documents (as
 /// of 2024-03), but this would seem to be appropriate.)

@@ -15,7 +15,8 @@ use {
 };
 
 
-/// A three-dimensional range that includes every [`Entry`] included in all three of its ranges.
+/// A three-dimensional range that includes every [`Entry`] included in all three of its
+/// [`Range`]s.
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd, Debug)]
 #[allow(clippy::exhaustive_structs)]
 pub struct ThreeDimRange<SubspaceId, Path>
@@ -50,7 +51,7 @@ where
     }
 
     /// A 3-D range includes every [`Entry`] whose `subspace_id`, `path`, and `timestamp` are all
-    /// [included](Range::includes) in their respective range.
+    /// [included](Range::includes) in their respective `Range`.
     #[must_use]
     #[inline]
     pub fn includes<NamespaceId, PayloadDigest>(
@@ -107,7 +108,7 @@ where
 /// - `paths` is the open `Range<Path>` whose `start` is the empty [`Path`](crate::Path), and
 /// - `times` is the open `Range<Timestamp>` with `start` `0`.
 ///
-/// This is the three-dimensional range that includes the entire space of **all** Entries in a
+/// This is the three-dimensional range that includes the entire space of **all** [`Entry`]s in a
 /// Namespace.
 impl<SubspaceId, Path> Default for ThreeDimRange<SubspaceId, Path>
 where

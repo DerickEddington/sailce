@@ -4,7 +4,8 @@
 //! Note: Many of the doc-comments of this crate are copied from the specification of Willow's
 //! [Data Model](https://willowprotocol.org/specs/data-model/index.html).
 
-// Apply the `no_std` attribute unconditionally, to require explicit `use` of non-`core` items.
+// Apply the `no_std` attribute unconditionally, to require explicit conditional `use` of
+// non-`core` items.
 #![no_std]
 
 use core::{
@@ -38,26 +39,26 @@ pub use store::{
 /// interoperable, even though both systems use Willow.
 pub trait Params
 {
-    /// Identifies namespaces.
+    /// Identifies Namespaces.
     type NamespaceId: Clone + Eq;
-    /// Identifies subspaces.
+    /// Identifies Subspaces.
     type SubspaceId: Clone + Eq;
     /// Content-addresses the data that Willow stores.
     type PayloadDigest: Ord;
     /// Proves write permission.
     type AuthorisationToken;
 
-    /// Limits the length of each component of a [`Path`].
+    /// Limits the length of each `Component` of a [`Path`].
     const MAX_COMPONENT_LENGTH: NonZeroUsize;
-    /// Limits the amount of components per [`Path`].
+    /// Limits the amount of `Component`s per [`Path`].
     const MAX_COMPONENT_COUNT: NonZeroUsize;
-    /// Limits the total length of all components of a [`Path`].
+    /// Limits the total length of all `Component`s of a [`Path`].
     const MAX_PATH_LENGTH: NonZeroUsize;
 
     /// Computes the [`PayloadDigest`](Self::PayloadDigest) of a byte-string (of length at most
     /// [`u64::MAX`]).
     ///
-    /// Since this function provides the only way in which Willow tracks Payloads, you probably
+    /// Since this function provides the only way in which Willow tracks `Payload`s, you probably
     /// want to use a [secure hash function](https://en.wikipedia.org/wiki/Secure_hash_function).
     #[allow(async_fn_in_trait)] // TODO: re-evaluate
     #[must_use]
@@ -80,7 +81,8 @@ pub trait Params
 /// An arbitrary sequence of bytes.  I.e. a single logical byte-string.  At most [`u64::MAX`]
 /// bytes.
 ///
-/// Applications read and write Payloads from and to Subspaces, addressing via hierarchical Paths.
+/// Applications read and write `Payload`s from and to Subspaces, addressing via hierarchical
+/// `Path`s.
 ///
 /// (If `core::async_iter::AsyncIterator` becomes stabilized, it might be better to change the
 /// super-trait bound to that.)

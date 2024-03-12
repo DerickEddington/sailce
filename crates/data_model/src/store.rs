@@ -1,4 +1,4 @@
-//! Aspects of Stores.
+//! Aspects of `Store`s.
 
 use {
     crate::{
@@ -14,7 +14,8 @@ use {
 // TODO: Make a separate impl of this that uses FS, e.g. sailce/crates/fs_store/ with tests.
 //
 /// A _store_ is a set of [`AuthorisedEntry`](crate::AuthorisedEntry)s such that
-/// - all its `Entry`s have the same [`namespace_id`](crate::Entry::namespace_id), and
+/// - all its [`Entry`](crate::Entry)s have the same [`namespace_id`](crate::Entry::namespace_id),
+///   and
 /// - there are no two of its `Entry`s `old` and `new` such that
 ///   - `old.subspace_id == new.subspace_id`, and
 ///   - `new.path` is a [prefix](Path::is_prefix_of) of `old.path`,
@@ -22,11 +23,11 @@ use {
 ///
 ///  (That includes the formal definition of _prefix pruning_.)
 ///
-/// I.e., storing a new Entry at the same 3-D location as another Entry in a Namespace will
-/// logically overwrite the old one, including when the new's Path subsumes the old's.
+/// I.e., storing a new `Entry` at the same 3-D location as another `Entry` in a Namespace will
+/// logically overwrite the old one, including when the new's `Path` subsumes the old's.
 ///
-/// This type enforces requirements that use of a Store must uphold, but, otherwise, it delegates
-/// to a [`StoreExt`] type that provides the primary implementation.
+/// This type enforces requirements that use of a `Store` must uphold, but, otherwise, it
+/// delegates to a [`StoreExt`] type that provides the primary implementation.
 #[derive(Debug)]
 #[allow(clippy::partial_pub_fields)]
 pub struct Store<NamespaceId, Ext>
@@ -59,7 +60,7 @@ where
         })
     }
 
-    /// Make a new `Self`, that initially has only a single Entry, for the Namespace given by
+    /// Make a new `Self`, that initially has only a single `Entry`, for the Namespace given by
     /// `auth_entry.entry().namespace_id`.
     ///
     /// Creates the Namespace if it doesn't already exist.
@@ -79,16 +80,16 @@ where
         Ok(new)
     }
 
-    /// Retrieve the Payload of an Entry.
+    /// Retrieve the [`Payload`] of an [`Entry`].
     ///
     /// Returns an [`Iterator`] of chunks that represents a single logical byte-string.  This
     /// allows the `impl`ementor flexibility in the representation (e.g. to retrieve chunks lazily
     /// and not hold them all in-memory at once).  The sizes of and boundaries between chunks are
-    /// arbitrary and might be inconsistent across calls for the same Entry.
+    /// arbitrary and might be inconsistent across calls for the same `Entry`.
     ///
-    /// Returns `None` if there is no such Entry stored in this `Store`'s Namespace, including
-    /// when an old Entry has been overwritten even if overwritten Entries are still persisted
-    /// somehow.
+    /// Returns `None` if there is no such [`Entry`] stored in this `Store`'s Namespace, including
+    /// when an old [`Entry`] has been overwritten even if overwritten [`Entry`]s are still
+    /// persisted somehow.
     ///
     /// # Errors
     /// If retrieval fails for any reason.
@@ -107,8 +108,8 @@ where
     /// that each can access concurrently (because each `self` can be borrowed `&mut`
     /// independently)
     ///
-    /// If `payload` is `None`, store `auth_entry` without its payload.  The same Entry can later
-    /// be `put` again with `payload` being `Some`.
+    /// If `payload` is `None`, store `auth_entry` without its payload.  The same `Entry` can
+    /// later be `put` again with `payload` being `Some`.
     ///
     /// # Errors
     /// If putting fails for any reason.
@@ -128,8 +129,8 @@ where
     }
 
     /// TODO ... maybe copy-paste the def of this op from the Willow Data Model webpage ...  note
-    /// because this gets the Entries of another Store, those Entries have digests that were
-    /// already verified and have timestamps that are already as desired ...
+    /// because this gets the `Entry`s of another `Store`, those `Entry`s have digests that were
+    /// already verified and have `timestamp`s that are already as desired ...
     ///
     /// # Errors
     /// If joining fails for any reason.

@@ -1,5 +1,5 @@
-//! Areas are an alternative to 3-D Ranges that can be used even when encrypting Paths and
-//! SubspaceIds.
+//! `Area`s are an alternative to [`ThreeDimRange`](crate::ThreeDimRange)s that can be used even
+//! when encrypting [`Path`](crate::Path)s and [`SubspaceId`](crate::Params::SubspaceId)s.
 
 use {
     crate::{
@@ -17,14 +17,14 @@ pub mod of_interest;
 pub use of_interest::AreaOfInterest;
 
 
-/// A grouping of Entries.
+/// A grouping of [`Entry`]s.
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd, Debug)]
 #[allow(clippy::exhaustive_structs)]
 pub struct Area<SubspaceId, Path>
 {
     /// To be included in this `Area`, an `Entry`'s [`subspace_id`](Entry::subspace_id) must be
-    /// equal to this, when `Subspace::Id`.  Or, when `Subspace::Any`, an `Entry`'s `subspace_id`
-    /// can be anything.
+    /// equal to this, when [`Id`](Subspace::Id).  Or, when [`Any`](Subspace::Any), an `Entry`'s
+    /// `subspace_id` can be anything.
     pub subspace: Subspace<SubspaceId>,
     /// To be included in this `Area`, an `Entry`'s `path` must be
     /// [prefixed](Path::is_prefix_of) by this.
@@ -68,7 +68,7 @@ where
     S: Eq,
     P: Path,
 {
-    /// Creates an empty Area.
+    /// Creates an empty `Area`.
     #[must_use]
     #[inline]
     pub fn empty() -> Self
@@ -83,7 +83,7 @@ where
 
     /// The _full area_ is the `Area` whose `subspace` is `Any`, whose `path` is the empty `Path`,
     /// and whose `times` is the open `Range<Timestamp>` with `start` `0`.  It includes all
-    /// Entries.
+    /// [`Entry`]s.
     #[must_use]
     #[inline]
     pub fn full() -> Self
@@ -94,7 +94,7 @@ where
 
     /// The _subspace area_ of the `SubspaceId` `sub` is the `Area` whose `subspace` is `sub`,
     /// whose `path` is the empty `Path`, and whose `times` is the open `Range<Timestamp>` with
-    /// `start` `0`.  It includes exactly the Entries with `subspace_id` `sub`.
+    /// `start` `0`.  It includes exactly the [`Entry`]s with `subspace_id` `sub`.
     #[must_use]
     #[inline]
     pub fn subspace(sub: S) -> Self
@@ -132,7 +132,7 @@ where
     }
 
     /// If two `Area`s overlap, the overlap is again an `Area`.  Let `self` and `other` be
-    /// `Area`s.  If there exists at least one `Entry` [included](Self::includes) in both `self`
+    /// `Area`s.  If there exists at least one [`Entry`] [included](Self::includes) in both `self`
     /// and `other`, then we define the _(nonempty) intersection_ of `self` and `other` as the
     /// `Area` whose
     /// - `subspace` is `a1.subspace` if `a1.subspace` is not `Any`, or `a2.subspace` otherwise,
