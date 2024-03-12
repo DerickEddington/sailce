@@ -108,7 +108,7 @@ where
     /// - `a.path` [prefixes](Path::is_prefix_of) `e.path`, and
     /// - `a.times` includes `e.timestamp`.
     ///
-    /// An `Area` includes another `Area` if the first `Area` includes all `Entry`s that the
+    /// An `Area` _includes_ another `Area` if the first `Area` includes all `Entry`s that the
     /// second `Area` includes.  In particular, every `Area` includes itself.
     #[must_use]
     #[inline]
