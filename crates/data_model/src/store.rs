@@ -28,13 +28,15 @@ use {
 ///
 /// This type enforces requirements that use of a `Store` must uphold, but, otherwise, it
 /// delegates to a [`StoreExt`] type that provides the primary implementation.
+///
+/// The fields are private, to prevent constructing arbitrary values that might not uphold the
+/// requirements.
 #[derive(Debug)]
-#[allow(clippy::partial_pub_fields)]
 pub struct Store<NamespaceId, Ext>
 {
     /// Which Namespace this `Store` is for.
-    pub namespace_id: NamespaceId,
-    ext:              Ext,
+    namespace_id: NamespaceId,
+    ext:          Ext,
 }
 
 impl<Params, Ext> Store<Params::NamespaceId, Ext>
@@ -78,6 +80,13 @@ where
             Self::new(&auth_entry.entry().namespace_id, args).map_err(SingletonError::New)?;
         new.ext.put(auth_entry, payload).map_err(SingletonError::Put)?;
         Ok(new)
+    }
+
+    /// The [`NamespaceId`](Params::NamespaceId) that `self` is for.
+    #[inline]
+    pub fn namespace_id(&self) -> &Params::NamespaceId
+    {
+        &self.namespace_id
     }
 
     /// Retrieve the [`Payload`] of an [`Entry`].

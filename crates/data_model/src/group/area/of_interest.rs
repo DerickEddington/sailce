@@ -80,7 +80,7 @@ where
         //TODO: let entry = entry.borrow(); // Causes "no field on type" bug in rust-analyzer.
         let ent = entry.borrow(); // TODO: remove
 
-        let same_namespace = || entry.borrow().namespace_id == store.namespace_id;
+        let same_namespace = || entry.borrow().namespace_id == *store.namespace_id();
         let within_area = || self.area.includes::<Entry<_, _, _, _>>(ent);
         let within_max_count = || match self.max_count {
             Max::Unlimited => true,
