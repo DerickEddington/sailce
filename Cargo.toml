@@ -13,7 +13,8 @@ rust-version = "1.75"
 #TODO? keywords = []
 
 [workspace.dependencies]
-#TODO
+cfg-if = "1"
+cfg_rust_features = "0.1"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

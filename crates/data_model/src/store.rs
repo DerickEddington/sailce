@@ -2,6 +2,7 @@
 
 use {
     crate::{
+        anticipated_or_like::Error,
         AuthorisedEntry,
         ParamsEntry,
         Path,
@@ -251,15 +252,15 @@ pub trait StoreExt: Sized
     /// Arguments for [`new`](Self::new).
     type NewArgs;
     /// Error(s) possibly returned by [`new`](Self::new).
-    type NewError;
+    type NewError: Error;
     /// Success possibly returned by [`get`](Self::get).
     type GetPayload: Payload;
     /// Error(s) possibly returned by [`get`](Self::get).
-    type GetError;
+    type GetError: Error;
     /// Error(s) possibly returned by [`put`](Self::put).
-    type PutError;
+    type PutError: Error;
     /// Error(s) possibly returned by [`join`](Self::join).
-    type JoinError;
+    type JoinError: Error;
     /// Returned by [`iter`](Self::iter).
     type Iter: Iterator<Item = AuthorisedEntry<Self::Params, Self::IterPath>>;
     /// Part of what is yielded by [`Self::Iter`].

@@ -10,6 +10,48 @@
 //! **TODO**: The API of this module is definitely unstable and will probably need to be changed,
 //! since we have very little experience with it.
 
+use {
+    crate::anticipated_or_like::Error,
+    cfg_if::cfg_if,
+    core::fmt::{
+        self,
+        Display,
+        Formatter,
+    },
+};
+
+
+cfg_if! { if #[cfg(feature = "anticipate")]
+{
+    pub struct DefaultIsEmptyError;
+
+    impl Error for DefaultIsEmptyError {}
+}
+else
+{
+    /// [`Payload::is_empty`] failed for any reason.
+    #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+    #[allow(clippy::exhaustive_structs)]
+    pub struct IsEmptyError;
+
+    impl Display for IsEmptyError
+    {
+        #[inline]
+        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
+        {
+            f.write_str("`Payload::is_empty()` failed")
+        }
+    }
+
+    impl Error for IsEmptyError {}
+} }
+
+#[cfg(all(not(feature = "anticipate"), rust_lang_feature = "associated_type_defaults"))]
+/// If the `associated_type_defaults` feature becomes stable in a future Rust version and we're
+/// not wanting to use our experimental "anticipate" package-feature, automatically preserve
+/// compatibility without breaking the SemVer of our API.
+type DefaultIsEmptyError = IsEmptyError;
+
 
 /// An arbitrary sequence of bytes.  I.e. a single logical byte-string.  At most [`u64::MAX`]
 /// bytes.
@@ -25,9 +67,15 @@
 pub trait Payload
 {
     /// Error(s) possibly returned by [`read`](Self::read).
-    type ReadError;
+    type ReadError: Error;
     /// Error(s) possibly returned by [`seek`](Self::seek).
-    type SeekError;
+    type SeekError: Error;
+
+    // Have this, if our package-feature "anticipate" is activated.  Or, automatically have this,
+    // if the `associated_type_defaults` feature becomes stable in a future Rust version.
+    #[cfg(any(feature = "anticipate", rust_lang_feature = "associated_type_defaults"))]
+    /// Error(s) possibly returned by [`is_empty`](Self::is_empty).
+    type IsEmptyError: Error = DefaultIsEmptyError;
 
     /// Pull some bytes from this `Payload` into the specified buffer, returning how many bytes
     /// were read.
@@ -110,23 +158,46 @@ pub trait Payload
         Ok(len)
     }
 
-    /// Returns `true` if this `Payload` has a length of 0.
-    ///
-    /// This is equivalent to `self.len().await? == 0` but might allow some implementations to be
-    /// more efficient.
-    ///
-    /// # Errors
-    /// If the implementation encounters any error, only `Err(())` is returned.  For the default
-    /// provided implementation, this would be caused by some `Self::SeekError`; but for other
-    /// implementations, this could be caused by any arbitrary reason, or might be impossible
-    /// (i.e. infallible).  (If "associated-type defaults" ever become stabilized, maybe the error
-    /// type of this should instead be changed to some `Self::IsEmptyError` that has default `type
-    /// IsEmptyError = ()` which might enable implementations to provide error info when desired.)
-    #[inline]
-    async fn is_empty(&mut self) -> Result<bool, ()>
+    cfg_if! { if #[cfg(not(any(feature = "anticipate",
+                               rust_lang_feature = "associated_type_defaults")))]
     {
-        Ok(self.len().await.or(Err(()))? == 0)
+        /// Returns `true` if this `Payload` has a length of 0.
+        ///
+        /// This is equivalent to `self.len().await? == 0` but might allow some implementations to
+        /// be more efficient.
+        ///
+        /// # Errors
+        /// If the implementation encounters any error, only `Err` of the unit-like type
+        /// `IsEmptyError` is returned.  For the default provided implementation, this would be
+        /// caused by some `Self::SeekError`; but for other implementations, this could be caused
+        /// by any arbitrary reason, or might be impossible (i.e. infallible).  (If
+        /// "associated-type defaults" ever becomes stabilized, maybe the error type of this
+        /// should instead be changed to some `Self::IsEmptyError` that has default `type
+        /// IsEmptyError = DefaultIsEmptyError` which might enable implementations to provide
+        /// better error info when desired by choosing a different type for `Self::IsEmptyError`.)
+        #[inline]
+        async fn is_empty(&mut self) -> Result<bool, IsEmptyError>
+        {
+            Ok(self.len().await.or(Err(IsEmptyError))? == 0)
+        }
     }
+    else
+    {
+        /// Returns `true` if this `Payload` has a length of 0.
+        ///
+        /// This is equivalent to `self.len().await? == 0` but might allow some implementations to
+        /// be more efficient.
+        ///
+        /// # Errors
+        /// If the implementation encounters any error.  For the default provided implementation,
+        /// this would be caused by some `Self::SeekError`; but for other implementations, this
+        /// could be caused by any arbitrary reason, or might be impossible (i.e. infallible).
+        #[inline]
+        async fn is_empty(&mut self) -> Result<bool, Self::IsEmptyError>
+        {
+            Ok(self.len().await? == 0)
+        }
+    } }
 
     /// Returns the current seek position from the start of the `Payload`.
     ///

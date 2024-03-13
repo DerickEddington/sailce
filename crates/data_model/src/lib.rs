@@ -7,8 +7,18 @@
 // Apply the `no_std` attribute unconditionally, to require explicit conditional `use` of
 // non-`core` items.
 #![no_std]
-
-use core::num::NonZeroUsize;
+// When our package-feature "anticipate" is activated, cause breaking changes to our API that use
+// Rust-features that our crate anticipates adopting in a future version if they become stable.
+// While unstable, they must be enabled here; or if some become stable, they will already be
+// enabled.
+#![cfg_attr(
+    all(feature = "anticipate", not(rust_lib_feature = "associated_type_defaults")),
+    feature(associated_type_defaults)
+)]
+#![cfg_attr(
+    all(feature = "anticipate", not(rust_lib_feature = "error_in_core")),
+    feature(error_in_core)
+)]
 
 
 mod entry;
@@ -33,6 +43,26 @@ pub use store::{
     Store,
     StoreExt,
 };
+
+cfg_if::cfg_if! { if #[cfg(feature = "anticipate")]
+{
+    /// Use of anticipated Rust features.
+    mod anticipated;
+    // No re-exports, because breaking changes are caused by this package-feature.
+
+    use anticipated as anticipated_or_like;
+}
+else {
+    /// Workarounds, that work with stable versions of Rust, that provide functionality similar to
+    /// unstable features that this crate anticipates using once stable.
+    mod like_anticipated;
+    pub use like_anticipated::Error;
+
+    use like_anticipated as anticipated_or_like;
+} }
+
+
+use core::num::NonZeroUsize;
 
 
 /// Willow is a higher-order protocol: you supply specific choices for its parameters, and you get

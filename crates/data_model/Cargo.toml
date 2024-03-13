@@ -12,11 +12,16 @@ readme = "README.md"
 #TODO? keywords.workspace = true
 
 [features]
+default = ["std"]
 alloc = []
-#TODO? std = ["alloc"]
+std = ["alloc"]
+anticipate = []  # Causes breaking changes, to use different Rust features.
 
 [dependencies]
-# whatever.workspace = true
+cfg-if.workspace = true
+
+[build-dependencies]
+cfg_rust_features.workspace = true
 
 [lints]
 workspace = true
