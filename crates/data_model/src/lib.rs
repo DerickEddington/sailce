@@ -8,10 +8,7 @@
 // non-`core` items.
 #![no_std]
 
-use core::{
-    future::Future,
-    num::NonZeroUsize,
-};
+use core::num::NonZeroUsize;
 
 
 mod entry;
@@ -27,6 +24,9 @@ pub use path::{
     EmptyPath,
     Path,
 };
+
+pub mod payload;
+pub use payload::Payload;
 
 pub mod store;
 pub use store::{
@@ -74,38 +74,6 @@ pub trait Params
         entry: &ParamsEntry<Self, impl Path>,
         auth_token: &Self::AuthorisationToken,
     ) -> bool;
-}
-
-
-// TODO: Reconsider if this should be some kind of seekable interface, instead of an interator, to
-// allow uses more like a traditional file that want to seek without getting contents from the
-// start.
-//
-/// An arbitrary sequence of bytes.  I.e. a single logical byte-string.  At most [`u64::MAX`]
-/// bytes.
-///
-/// Applications read and write `Payload`s from and to Subspaces, addressing via hierarchical
-/// `Path`s.
-///
-/// (If `core::async_iter::AsyncIterator` becomes stabilized, it might be better to change the
-/// super-trait bound to that.)
-pub trait Payload: IntoIterator<Item = Self::FutureChunk>
-{
-    /// The item type given by the iterator is a [`Future`] of a chunk of bytes.
-    ///
-    /// This allows a variety of `impl`ementations (e.g. chunks which involve blocking to
-    /// retrieve).
-    type FutureChunk: Future<Output = Self::Chunk>;
-
-    /// A single chunk of bytes.
-    ///
-    /// All the chunks together in sequence represent the single logical byte-string.  The sizes
-    /// of and boundaries between chunks are arbitrary and might be inconsistent across the same
-    /// type or multiple uses of the same instance.
-    ///
-    /// This allows a variety of `impl`ementations (e.g. multiple chunks which aren't all
-    /// in-memory at once).
-    type Chunk: AsRef<[u8]>;
 }
 
 
