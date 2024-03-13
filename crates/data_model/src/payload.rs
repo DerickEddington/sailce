@@ -65,15 +65,6 @@ cfg_if! { if #[cfg(feature = "anticipate")]
 {
     pub use is_empty_error::IsEmptyError as DefaultIsEmptyError;
 }
-else if #[cfg(rust_lang_feature = "associated_type_defaults")]
-{
-    pub use is_empty_error::IsEmptyError;
-
-    /// If the `associated_type_defaults` feature becomes stable in a future Rust version and
-    /// we're not wanting to use our experimental "anticipate" package-feature, automatically
-    /// preserve compatibility without breaking the SemVer of our API.
-    type DefaultIsEmptyError<E> = IsEmptyError<E>;
-}
 else {
     pub use is_empty_error::IsEmptyError;
 } }
@@ -97,9 +88,7 @@ pub trait Payload
     /// Error(s) possibly returned by [`seek`](Self::seek).
     type SeekError: Error;
 
-    // Have this, if our package-feature "anticipate" is activated.  Or, automatically have this,
-    // if the `associated_type_defaults` feature becomes stable in a future Rust version.
-    #[cfg(any(feature = "anticipate", rust_lang_feature = "associated_type_defaults"))]
+    #[cfg(feature = "anticipate")]
     /// Error(s) possibly returned by [`is_empty`](Self::is_empty).
     type IsEmptyError: Error = DefaultIsEmptyError<Self::SeekError>;
 
@@ -184,8 +173,7 @@ pub trait Payload
         Ok(len)
     }
 
-    cfg_if! { if #[cfg(not(any(feature = "anticipate",
-                               rust_lang_feature = "associated_type_defaults")))]
+    cfg_if! { if #[cfg(not(feature = "anticipate"))]
     {
         /// Returns `true` if this `Payload` has a length of 0.
         ///
@@ -205,7 +193,7 @@ pub trait Payload
             Ok(self.len().await.map_err(|e| IsEmptyError { source_error: e })? == 0)
         }
     }
-    else // `feature = "anticipate"` or `rust_lang_feature = "associated_type_defaults"`
+    else // `feature = "anticipate"`
     {
         /// Returns `true` if this `Payload` has a length of 0.
         ///
