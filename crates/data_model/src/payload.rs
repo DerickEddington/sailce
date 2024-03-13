@@ -16,51 +16,6 @@ use {
 };
 
 
-mod is_empty_error
-{
-    use {
-        super::Error,
-        core::fmt::{
-            self,
-            Display,
-            Formatter,
-        },
-    };
-
-
-    /// [`Payload::is_empty`] failed for any reason.
-    #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-    #[allow(clippy::exhaustive_structs)]
-    pub struct IsEmptyError<E>
-    {
-        /// The lower-level source of this error.
-        pub source_error: E,
-    }
-
-    impl<E> Display for IsEmptyError<E>
-    {
-        #[inline]
-        fn fmt(
-            &self,
-            f: &mut Formatter<'_>,
-        ) -> fmt::Result
-        {
-            f.write_str("`Payload::is_empty()` failed")
-        }
-    }
-
-    impl<E> Error for IsEmptyError<E>
-    where E: Error + 'static
-    {
-        #[inline]
-        fn source(&self) -> Option<&(dyn Error + 'static)>
-        {
-            let dyn_e: &dyn Error = &self.source_error;
-            Some(dyn_e)
-        }
-    }
-}
-
 cfg_if! { if #[cfg(feature = "anticipate")]
 {
     pub use is_empty_error::IsEmptyError as DefaultIsEmptyError;
@@ -186,14 +141,15 @@ pub trait Payload
         /// caused by any arbitrary reason, or might be impossible (i.e. infallible).  (If
         /// "associated-type defaults" ever becomes stabilized, maybe the error type of this
         /// should instead be changed to some `Self::IsEmptyError` that has default `type
-        /// IsEmptyError = DefaultIsEmptyError` which might be better.)
+        /// IsEmptyError = DefaultIsEmptyError`, which might be better for supporting various
+        /// implementations.)
         #[inline]
         async fn is_empty(&mut self) -> Result<bool, IsEmptyError<impl Error>>
         {
             Ok(self.len().await.map_err(|e| IsEmptyError { source_error: e })? == 0)
         }
     }
-    else // `feature = "anticipate"`
+    else // `#[cfg(feature = "anticipate")]`
     {
         /// Returns `true` if this `Payload` has a length of 0.
         ///
@@ -202,8 +158,8 @@ pub trait Payload
         ///
         /// # Errors
         /// If the implementation encounters any error.  For the default provided implementation,
-        /// this would be caused by some `Self::SeekError`; but for other implementations, this
-        /// could be caused by any arbitrary reason, or might be impossible (i.e. infallible).
+        /// this is caused by some `Self::SeekError`; but for other implementations, this could be
+        /// caused by any arbitrary reason, or might be impossible (i.e. infallible).
         #[inline]
         async fn is_empty(&mut self) -> Result<bool, Self::IsEmptyError>
         {
@@ -263,4 +219,50 @@ pub enum SeekFrom
     /// It's an error to seek beyond the end of a `Payload`, and it's an error to seek before
     /// byte 0.
     Current(i64),
+}
+
+
+mod is_empty_error
+{
+    use {
+        super::Error,
+        core::fmt::{
+            self,
+            Display,
+            Formatter,
+        },
+    };
+
+
+    /// [`Payload::is_empty`] failed for any reason.
+    #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+    #[allow(clippy::exhaustive_structs)]
+    pub struct IsEmptyError<E>
+    {
+        /// The lower-level source of this error.
+        pub source_error: E,
+    }
+
+    impl<E> Display for IsEmptyError<E>
+    {
+        #[inline]
+        fn fmt(
+            &self,
+            f: &mut Formatter<'_>,
+        ) -> fmt::Result
+        {
+            f.write_str("`Payload::is_empty()` failed")
+        }
+    }
+
+    impl<E> Error for IsEmptyError<E>
+    where E: Error + 'static
+    {
+        #[inline]
+        fn source(&self) -> Option<&(dyn Error + 'static)>
+        {
+            let dyn_e: &dyn Error = &self.source_error;
+            Some(dyn_e)
+        }
+    }
 }
