@@ -21,7 +21,7 @@
 /// and [`std::io::Seek`](https://doc.rust-lang.org/std/io/trait.Seek.html), but differs in some
 /// significant ways, such as: being `async`, erroring when attempting to seek beyond the end, and
 /// having multiple separate generic error types.)
-#[allow(async_fn_in_trait)] // TODO: Reconsider.
+#[allow(async_fn_in_trait)] // TODO: Re-evaluate.
 pub trait Payload
 {
     /// Error(s) possibly returned by [`read`](Self::read).
