@@ -8,5 +8,6 @@
 
 fn main()
 {
+    return; // TODO
     cfg_rust_features::emit!(["associated_type_defaults", "error_in_core"]).unwrap();
 }

@@ -45,7 +45,13 @@ pub trait Payload
 
     #[cfg(feature = "anticipate")]
     /// Error(s) possibly returned by [`is_empty`](Self::is_empty).
-    type IsEmptyError: Error = DefaultIsEmptyError<Self::SeekError>;
+    type IsEmptyError: Error = DefaultIsEmptyError<Self::SeekError>
+    where Self::SeekError: 'static;
+
+    // TODO: Try to have some `const SYNC_EXECUTOR_BLOCK_ON: Fn(impl Future) -> Output =
+    // default_panics` or something, and also provide default sync method versions of below that
+    // use it.  Or, alternatively, maybe have some separate trait(s) for this and an auto blanket
+    // impl.
 
     /// Pull some bytes from this `Payload` into the specified buffer, returning how many bytes
     /// were read.

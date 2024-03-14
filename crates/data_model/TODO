@@ -1,0 +1,5 @@
+Tests for new `area::*` stuff, and tests for anything else new or changed.
+
+Tests for Payload, seeking, and Store
+
+Change all "`impl`ementation" to not have backticks.

@@ -14,7 +14,7 @@ rust-version = "1.75"
 
 [workspace.dependencies]
 cfg-if = "1"
-cfg_rust_features = "0.1"
+cfg_rust_features = "0.1" # TODO: new patch release w/ needed support
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
