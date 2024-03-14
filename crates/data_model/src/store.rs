@@ -12,6 +12,10 @@ use {
 };
 
 
+mod errors;
+pub use errors::*;
+
+
 // TODO: Make a separate impl of this that uses FS, e.g. sailce/crates/fs_store/ with tests.
 //
 /// A _store_ is a set of [`AuthorisedEntry`](crate::AuthorisedEntry)s such that
@@ -190,40 +194,6 @@ where
     {
         todo!()
     }
-}
-
-
-/// Errors possibly returned by [`Store::singleton`].
-#[derive(Debug)]
-#[allow(clippy::exhaustive_enums)]
-pub enum SingletonError<Ext: StoreExt>
-{
-    /// Failure of [`StoreExt::new`]
-    New(Ext::NewError),
-    /// Failure of [`StoreExt::put`]
-    Put(Ext::PutError),
-}
-
-/// Errors possibly returned by [`Store::put`].
-#[derive(Debug)]
-#[allow(clippy::exhaustive_enums)]
-pub enum PutError<Ext: StoreExt>
-{
-    /// The `auth_entry` argument is not for the same Namespace.
-    DifferentNamespace,
-    /// Failure of [`StoreExt::put`]
-    Ext(Ext::PutError),
-}
-
-/// Errors possibly returned by [`Store::join`].
-#[derive(Debug)]
-#[allow(clippy::exhaustive_enums)]
-pub enum JoinError<Ext: StoreExt>
-{
-    /// The `other` argument is not for the same Namespace.
-    DifferentNamespace,
-    /// Failure of [`StoreExt::join`]
-    Ext(Ext::JoinError),
 }
 
 
