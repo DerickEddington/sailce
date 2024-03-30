@@ -1,0 +1,78 @@
+[workspace]
+members = ["packages/*"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.1-pre"
+authors = ["Derick Eddington"]
+repository = "https://github.com/DerickEddington/sailce"
+license = "Unlicense"
+edition = "2021"
+rust-version = "1.75"
+#TODO? categories = ["willow", ...]
+#TODO? keywords = ["willow", ...]
+
+[workspace.dependencies]
+cfg-if = "1"
+cfg_rust_features = "0.1.2"
+pollster = "0.3"
+
+[workspace.lints.rust]
+unsafe_code =                     "forbid"
+unstable_features =               "deny"
+# Warn about desired lints that would otherwise be allowed by default.
+# Groups
+future_incompatible =             "warn"
+nonstandard_style =               "warn"
+rust_2018_compatibility =         "warn"
+rust_2018_idioms =                "warn"
+rust_2021_compatibility =         "warn"
+unused =                          "warn"
+# Individual lints not included in above groups and desired.
+let_underscore_drop =             "warn"
+macro_use_extern_crate =          "warn"
+meta_variable_misuse =            "warn"
+missing_copy_implementations =    "warn"
+missing_debug_implementations =   "warn"
+missing_docs =                    "warn"
+single_use_lifetimes =            "warn"
+trivial_casts =                   "warn"
+trivial_numeric_casts =           "warn"
+unit_bindings =                   "warn"
+unreachable_pub =                 "warn"
+unused_crate_dependencies =       "warn"
+unused_extern_crates =            "warn"
+unused_import_braces =            "warn"
+unused_lifetimes =                "warn"
+unused_macro_rules =              "warn"
+unused_qualifications =           "warn"
+unused_results =                  "warn"
+variant_size_differences =        "warn"
+
+[workspace.lints.clippy]
+# Groups
+pedantic =    "warn"
+restriction = "warn"
+#TODO cargo =       "warn"
+# Exclude (re-allow) undesired lints included in above groups.
+absolute_paths =                   { level = "allow", priority = 1 }
+blanket_clippy_restriction_lints = { level = "allow", priority = 1 }
+default_numeric_fallback =         { level = "allow", priority = 1 }
+disallowed_script_idents =         { level = "allow", priority = 1 }
+impl_trait_in_params =             { level = "allow", priority = 1 }
+implicit_return =                  { level = "allow", priority = 1 }
+min_ident_chars =                  { level = "allow", priority = 1 }
+missing_docs_in_private_items =    { level = "allow", priority = 1 }
+missing_trait_methods =            { level = "allow", priority = 1 }
+module_name_repetitions =          { level = "allow", priority = 1 }
+non_ascii_literal =                { level = "allow", priority = 1 }
+pattern_type_mismatch =            { level = "allow", priority = 1 }
+pub_use =                          { level = "allow", priority = 1 }
+pub_with_shorthand =               { level = "allow", priority = 1 }
+question_mark_used =               { level = "allow", priority = 1 }
+self_named_module_files =          { level = "allow", priority = 1 }
+semicolon_outside_block =          { level = "allow", priority = 1 }
+separated_literal_suffix =         { level = "allow", priority = 1 }
+single_call_fn =                   { level = "allow", priority = 1 }
+single_char_lifetime_names =       { level = "allow", priority = 1 }
+shadow_reuse =                     { level = "allow", priority = 1 }

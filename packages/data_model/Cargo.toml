@@ -1,0 +1,30 @@
+[package]
+name = "sailce_data_model"
+version.workspace = true
+description = "The core data model of Willow."
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+#TODO? categories.workspace = true
+#TODO? keywords.workspace = true
+
+[features]
+default = ["std"]
+alloc = []
+std = ["alloc"]
+anticipate = []  # Causes breaking changes, to use different Rust features.
+
+[dependencies]
+cfg-if.workspace = true
+
+[build-dependencies]
+cfg_rust_features.workspace = true
+
+[dev-dependencies]
+pollster.workspace = true
+
+[lints]
+workspace = true
