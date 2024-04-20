@@ -47,7 +47,7 @@ fn types()
             use sailce_data_model::path::Extra as _;
             Vec::from_path(path)
         } else {
-            path.components().map(|comp| comp.bytes).collect()
+            path.components().map(|comp| comp.inner).collect()
         } }
     }
 

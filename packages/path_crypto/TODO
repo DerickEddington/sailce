@@ -1,0 +1,49 @@
+APIs for crypting sub-paths prefixed by a path, where only the sub-key is known
+
+Maybe this should involve some new SubPath type that holds a Path and an index into that of where the prefix ends and the sub begins, and this would impl Path such that its components start with only the subs starting at index, and this could be used with EncryptPath etc where key_0 would actually be key_index.
+
+
+
+The API should provide whatever convenience for getting the encryption key of the final Component of an Entry's path, for encrypting the Entry's payload.  And, similarly, convenience for getting the further key for further Components following the final of a path.  The API already provides for this, but is it sufficiently convenient?
+
+
+
+Should EncryptPath::encrypt (et al) have additional C type param where `B: Into<C>` and instead
+`P: FromIterator<C>` and `ec.bytes().into()`?  This should still allow direct moving of owned B
+values into the result, when C=B, but should also enable further conversions that would probably
+involve copying the encrypted bytes but that could sometimes be desirable.
+
+
+
+Maybe?:
+
+/// Wraps an [`EncryptedPath`] and its key(s) to implement [`Path`] such that [`Component`]s are
+/// automatically decrypted.
+pub enum DecryptorPath<'k, Key: ?Sized>
+where
+    Key: Borrow<KeyRef>,
+    KeyRef: crate::Key,
+{
+    Key0
+    {
+        enc_path: EncryptedPath, key0: &'k Key
+    },
+    Keys
+    {
+        enc_path: EncryptedPath, keys: &'k [&'k Key]
+    },
+}
+
+impl<'k, Key: ?Sized> Path for DecryptorPath<'k, Key> { ... }
+
+And similarly?:
+
+/// Wraps a [`Path`] and its key(s) to implement [`Path`] such that [`Component`]s are
+/// automatically encrypted.
+pub enum EncryptorPath<Key, KeyRef>
+
+
+
+Tests of (almost) everything, using dummy algos
+
+An example/ that uses real crypto algos

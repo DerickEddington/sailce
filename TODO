@@ -1,0 +1,5 @@
+Do LLVM code-coverage of libs as exercised by their tests, and see what still needs to be covered.
+
+
+
+Publish 0.0.1 to crates.io and tag in GitHub.  Will need to change version in `Cargo.toml`s.

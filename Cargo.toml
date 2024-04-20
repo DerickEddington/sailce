@@ -16,6 +16,8 @@ rust-version = "1.75"
 cfg-if = "1"
 cfg_rust_features = "0.1.2"
 pollster = "0.3"
+# Our own packages, for use by our own packages.
+sailce_data_model = { path = "packages/data_model", version = "0.0.1-pre" }
 
 [workspace.lints.rust]
 unsafe_code =                     "forbid"

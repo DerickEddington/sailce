@@ -2,6 +2,7 @@ use {
     crate::path::Component,
     core::{
         borrow::Borrow,
+        cmp::Ordering,
         ops::{
             Deref,
             DerefMut,
@@ -14,70 +15,134 @@ use {
 };
 
 
-/// A single component of a `Path` as a `str` string slice.
-#[derive(Copy, Clone, Eq, Ord, Hash, PartialEq, PartialOrd, Debug)]
+/// A single component of a `Path` as a string.
+#[derive(Copy, Clone, Hash, Debug)]
 #[allow(clippy::exhaustive_structs)]
-pub struct StrComponent<'l>
+pub struct StrComponent<Str>
+where Str: Borrow<str>
 {
-    /// The string slice that is the single component.
-    pub str: &'l str,
+    /// Represents the string that is the single component.
+    pub inner: Str,
 }
 
+/// Indicates that `StrComponent` behaves identically to `str` w.r.t. `Hash`, `Ord`, etc.
+impl<S> Borrow<str> for StrComponent<S>
+where S: Borrow<str>
+{
+    #[inline]
+    fn borrow(&self) -> &str
+    {
+        self.inner.borrow()
+    }
+}
+
+// (`StrComponent` must not `impl Borrow<[u8]>` because of the requirements of that trait.)
+
+impl<S> StrComponent<S>
+where S: Borrow<str>
+{
+    /// Get immutable reference to the string.
+    #[inline]
+    pub fn str(&self) -> &str
+    {
+        <Self as Borrow<str>>::borrow(self)
+    }
+}
+
+impl<Sa, Sb> PartialEq<StrComponent<Sb>> for StrComponent<Sa>
+where
+    Sa: Borrow<str>,
+    Sb: Borrow<str>,
+{
+    #[inline]
+    fn eq(
+        &self,
+        other: &StrComponent<Sb>,
+    ) -> bool
+    {
+        self.str() == other.str()
+    }
+}
+
+impl<B> Eq for StrComponent<B> where B: Borrow<str> {}
+
+impl<Sa, Sb> PartialOrd<StrComponent<Sb>> for StrComponent<Sa>
+where
+    Sa: Borrow<str>,
+    Sb: Borrow<str>,
+{
+    #[inline]
+    fn partial_cmp(
+        &self,
+        other: &StrComponent<Sb>,
+    ) -> Option<Ordering>
+    {
+        Some(self.str().cmp(other.str()))
+    }
+}
+
+impl<B> Ord for StrComponent<B>
+where B: Borrow<str>
+{
+    #[inline]
+    fn cmp(
+        &self,
+        other: &Self,
+    ) -> Ordering
+    {
+        self.str().cmp(other.str())
+    }
+}
+
+// The following conversions are not the only possibilities.  These are provided by this crate
+// because they seem like they'll be useful.  If others are also somewhat commonly useful, more
+// should be added here.
+
 /// Enables `StrComponent` to work with [`try_from_path`](crate::path::Extra::try_from_path).
-impl<'l> TryFrom<&'l [u8]> for StrComponent<'l>
+impl<'l> TryFrom<&'l [u8]> for StrComponent<&'l str>
 {
     type Error = Utf8Error;
 
     #[inline]
     fn try_from(value: &'l [u8]) -> Result<Self, Self::Error>
     {
-        Ok(Self { str: from_utf8(value)? })
+        Ok(Self { inner: from_utf8(value)? })
     }
 }
 
 /// Might be useful.
-impl<'l> TryFrom<Component<'l>> for StrComponent<'l>
+impl<'l> TryFrom<Component<&'l [u8]>> for StrComponent<&'l str>
 {
     type Error = Utf8Error;
 
     #[inline]
-    fn try_from(value: Component<'l>) -> Result<Self, Self::Error>
+    fn try_from(value: Component<&'l [u8]>) -> Result<Self, Self::Error>
     {
-        value.bytes.try_into()
+        value.inner.try_into()
     }
 }
 
 /// Enables `StrComponent` to work with the blanket `impl`s of `Path`.
-impl AsRef<[u8]> for StrComponent<'_>
+impl<S> AsRef<[u8]> for StrComponent<S>
+where S: Borrow<str>
 {
     #[inline]
     fn as_ref(&self) -> &[u8]
     {
-        self.str.as_ref()
+        self.str().as_ref()
     }
 }
 
 /// Might be useful.
-impl AsRef<str> for StrComponent<'_>
+impl<S> AsRef<str> for StrComponent<S>
+where S: Borrow<str>
 {
     #[inline]
     fn as_ref(&self) -> &str
     {
-        self.str
+        self.str()
     }
 }
-
-/// Might be useful.
-impl Borrow<str> for StrComponent<'_>
-{
-    #[inline]
-    fn borrow(&self) -> &str
-    {
-        self.str
-    }
-}
-
-// (`StrComponent` must not `impl Borrow<[u8]>` because of the requirements of that trait.)
 
 
 /// Provides [`TryFrom`] conversion from UTF-8 bytes for any type that represents a string.

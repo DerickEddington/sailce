@@ -29,7 +29,7 @@ pub trait Extra: Path
         Po: Path + ?Sized,
         &'l [u8]: Into<C>,
     {
-        other.components().map(|c| c.bytes.into()).collect()
+        other.components().map(|c| c.inner.into()).collect()
     }
 
     /// Like [`Self::from_path`] but uses fallible conversions that might fail.
@@ -37,13 +37,13 @@ pub trait Extra: Path
     /// # Errors
     /// If converting bytes into the desired component type fails.
     #[inline]
-    fn try_from_path<'l, Po, C>(other: &'l Po) -> Result<Self, <&'l [u8] as TryInto<C>>::Error>
+    fn try_from_path<'l, Po, C, E>(other: &'l Po) -> Result<Self, E>
     where
         Self: FromIterator<C>,
         Po: Path + ?Sized,
-        &'l [u8]: TryInto<C>,
+        &'l [u8]: TryInto<C, Error = E>,
     {
-        other.components().map(|c| c.bytes.try_into()).collect()
+        other.components().map(|c| c.inner.try_into()).collect()
     }
 
     /// Like [`Self::from_path`] but enforce the limits of a [`Params`](crate::Params).
@@ -64,7 +64,7 @@ pub trait Extra: Path
             .components()
             .enumerate()
             .map(|(index, c)| {
-                let c_sz = c.bytes.len();
+                let c_sz = c.bytes().len();
                 let mut total_overflowed = false;
                 match total_sz.checked_add(c_sz) {
                     Some(t) => total_sz = t,
@@ -79,7 +79,7 @@ pub trait Extra: Path
                     && within_max_component_count
                     && within_max_path_length
                 {
-                    Ok(c.bytes.into())
+                    Ok(c.inner.into())
                 }
                 else {
                     Err(PathLimitError {

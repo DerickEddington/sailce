@@ -15,7 +15,7 @@ impl<T> Path for &T
 where T: Path + ?Sized
 {
     #[inline]
-    fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>
+    fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>
     {
         <T as Path>::components(*self)
     }
@@ -28,9 +28,9 @@ macro_rules! path_iter_impl {
         where C: AsRef<[u8]>
         {
             #[inline]
-            fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>
+            fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>
             {
-                self.iter().map(|bytes| Component { bytes: bytes.as_ref() })
+                self.iter().map(|bytes| Component { inner: bytes.as_ref() })
             }
         }
     };
@@ -69,7 +69,7 @@ impl<const N: usize, C> Path for [C; N]
 where C: AsRef<[u8]>
 {
     #[inline]
-    fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>
+    fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>
     {
         <[C] as Path>::components(&self[..])
     }
@@ -124,7 +124,7 @@ mod alloc
             where C: AsRef<[u8]>
             {
                 #[inline]
-                fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>
+                fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>
                 {
                     <[C] as Path>::components(&self[..])
                 }
@@ -155,9 +155,9 @@ mod alloc
         [C]: ToOwned,
     {
         #[inline]
-        fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>
+        fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>
         {
-            self.iter().map(|bytes| Component { bytes: bytes.as_ref() })
+            self.iter().map(|bytes| Component { inner: bytes.as_ref() })
         }
     }
 

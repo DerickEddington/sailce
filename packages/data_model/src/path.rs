@@ -2,6 +2,7 @@
 
 use core::{
     borrow::Borrow,
+    cmp::Ordering,
     str::Utf8Error,
 };
 
@@ -33,7 +34,7 @@ pub trait Path
     /// `Iterator` enables implementations to avoid needing heap allocation, while
     /// `ExactSizeIterator` enables knowing the amount of `Component`s upfront.
     #[must_use]
-    fn components(&self) -> impl ExactSizeIterator<Item = Component<'_>>;
+    fn components(&self) -> impl ExactSizeIterator<Item = Component<&[u8]>>;
 
     /// Like [`Self::components`] but gives the components as string slices from UTF-8, if
     /// possible.
@@ -43,7 +44,7 @@ pub trait Path
     /// ```
     /// # use {sailce_data_model::{path::StrComponent, Path as _}, core::str::Utf8Error};
     /// # let path: [&[u8; 4]; 3] = [b"good", b"bad\xFF", b"good"];
-    /// let x: Result<Vec<StrComponent>, Utf8Error> = path.str_components().collect();
+    /// let x: Result<Vec<StrComponent<&str>>, Utf8Error> = path.str_components().collect();
     /// # assert!(x.is_err());
     /// ```
     /// Similarly, it also can be useful for propagating the first error if it occurred:
@@ -51,7 +52,7 @@ pub trait Path
     /// # use {sailce_data_model::{path::StrComponent, Path as _}, core::str::Utf8Error};
     /// # fn main() -> Result<(), Utf8Error> {
     /// # let path: &[&[u8]] = &[&b"good"[..], &b"alright"[..]];
-    /// let x: Vec<StrComponent> = path.str_components().collect::<Result<_, _>>()?;
+    /// let x: Vec<StrComponent<&str>> = path.str_components().collect::<Result<_, _>>()?;
     /// # assert_eq!(x.iter().map(|sc| sc.as_ref()).collect::<Vec<&str>>(), ["good", "alright"]);
     /// # Ok(()) }
     /// ```
@@ -59,8 +60,9 @@ pub trait Path
     /// don't `collect` like this.
     #[must_use]
     #[inline]
-    fn str_components(&self)
-    -> impl ExactSizeIterator<Item = Result<StrComponent<'_>, Utf8Error>>
+    fn str_components(
+        &self
+    ) -> impl ExactSizeIterator<Item = Result<StrComponent<&str>, Utf8Error>>
     {
         self.components().map(StrComponent::try_from)
     }
@@ -100,50 +102,116 @@ pub trait EmptyPath: Path
 
 
 /// A single component of a `Path`.
-#[derive(Copy, Clone, Eq, Ord, Hash, PartialEq, PartialOrd, Debug)]
+#[derive(Copy, Clone, Hash, Debug)]
 #[allow(clippy::exhaustive_structs)]
-pub struct Component<'l>
+pub struct Component<Bytes>
+where Bytes: Borrow<[u8]>
 {
-    /// The byte-string that is the single component.
-    pub bytes: &'l [u8],
+    /// Represents the byte-string that is the single component.
+    pub inner: Bytes,
 }
 
-/// Enables `Component` to work with [`from_path`](Extra::from_path).
-impl<'l> From<&'l [u8]> for Component<'l>
-{
-    #[inline]
-    fn from(bytes: &'l [u8]) -> Self
-    {
-        Self { bytes }
-    }
-}
-
-/// Might be useful.
-impl<'l> From<StrComponent<'l>> for Component<'l>
-{
-    #[inline]
-    fn from(value: StrComponent<'l>) -> Self
-    {
-        Self { bytes: value.str.as_bytes() }
-    }
-}
-
-/// Enables `Component` to work with the blanket `impl`s of `Path`.
-impl AsRef<[u8]> for Component<'_>
-{
-    #[inline]
-    fn as_ref(&self) -> &[u8]
-    {
-        self.bytes
-    }
-}
-
-/// Might be useful.
-impl Borrow<[u8]> for Component<'_>
+/// Indicates that `Component` behaves identically to `[u8]` w.r.t. `Hash`, `Ord`, etc.
+impl<B> Borrow<[u8]> for Component<B>
+where B: Borrow<[u8]>
 {
     #[inline]
     fn borrow(&self) -> &[u8]
     {
-        self.bytes
+        self.inner.borrow()
+    }
+}
+
+impl<B> Component<B>
+where B: Borrow<[u8]>
+{
+    /// Get immutable reference to the bytes.
+    #[inline]
+    pub fn bytes(&self) -> &[u8]
+    {
+        <Self as Borrow<[u8]>>::borrow(self)
+    }
+}
+
+impl<Ba, Bb> PartialEq<Component<Bb>> for Component<Ba>
+where
+    Ba: Borrow<[u8]>,
+    Bb: Borrow<[u8]>,
+{
+    #[inline]
+    fn eq(
+        &self,
+        other: &Component<Bb>,
+    ) -> bool
+    {
+        self.bytes() == other.bytes()
+    }
+}
+
+impl<B> Eq for Component<B> where B: Borrow<[u8]> {}
+
+impl<Ba, Bb> PartialOrd<Component<Bb>> for Component<Ba>
+where
+    Ba: Borrow<[u8]>,
+    Bb: Borrow<[u8]>,
+{
+    #[inline]
+    fn partial_cmp(
+        &self,
+        other: &Component<Bb>,
+    ) -> Option<Ordering>
+    {
+        Some(self.bytes().cmp(other.bytes()))
+    }
+}
+
+impl<B> Ord for Component<B>
+where B: Borrow<[u8]>
+{
+    #[inline]
+    fn cmp(
+        &self,
+        other: &Self,
+    ) -> Ordering
+    {
+        self.bytes().cmp(other.bytes())
+    }
+}
+
+// The following conversions are not the only possibilities.  These are provided by this crate
+// because they seem like they'll be useful.  If others are also somewhat commonly useful, more
+// should be added here.
+
+/// Enables `Component` to work with [`from_path`](Extra::from_path).
+impl<'l> From<&'l [u8]> for Component<&'l [u8]>
+{
+    #[inline]
+    fn from(bytes: &'l [u8]) -> Self
+    {
+        Self { inner: bytes }
+    }
+}
+
+/// Might be useful.
+///
+/// (Should be replaced by `impl<S, B> From<StrComponent<S>> for Component<B> where S: Into<B>`,
+/// if the standard library ever adds `impl From<&str> for &[u8]`.)
+impl<'l> From<StrComponent<&'l str>> for Component<&'l [u8]>
+{
+    #[inline]
+    fn from(value: StrComponent<&'l str>) -> Self
+    {
+        Self { inner: value.inner.as_bytes() }
+    }
+}
+
+/// Enables `Component` to work with the blanket `impl`s of `Path`.
+impl<B> AsRef<[u8]> for Component<B>
+where B: Borrow<[u8]>
+{
+    #[inline]
+    fn as_ref(&self) -> &[u8]
+    {
+        self.bytes()
     }
 }

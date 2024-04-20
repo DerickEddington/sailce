@@ -1,0 +1,1 @@
+Turn the InMem Payload and InMem Store of tests/basic/ into a separate new crate sailce_inmem.  This will be useful in the future for demo apps and probably other tests
